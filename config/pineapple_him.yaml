@@ -1,6 +1,6 @@
 # configuration for mujoco_rl_him
-policy_path: "pre_train/pineapplev1/policy_Sep24_21-58-41_.pt"
-xml_path: "robots/pineapple/xml/scene.xml"
+policy_path: "pre_train/pineapplev1/policy_Oct30_12-20-11_.pt"
+xml_path: "robots/pineapple1027/scene.xml"
 
 # Total simulation time
 simulation_duration: 60.0
@@ -9,14 +9,14 @@ simulation_dt: 0.005
 # Controller update frequency (meets the requirement of simulation_dt * controll_decimation=0.02; 50Hz)
 control_decimation: 4
 
-kps: [20, 20, 20, 0, 20, 20, 20, 0]
+kps: [25, 25, 25, 0, 25, 25, 25, 0]
 kds: [0.5, 0.5, 0.5, 0.3, 0.5, 0.5, 0.5, 0.3]
 # kps: [20, 20, 0, 20, 20, 0]
 # kds: [0.5, 0.5, 1.0, 0.5, 0.5, 1.0]
 
 
 # default_angles: [1.22, -1.92, 0, 1.22, -1.92, 0]
-default_angles: [0, 1.2533, -2.0479, 0, 0, 1.2533, -2.0479, 0]
+default_angles: [0.0, 1.2533, -2.0479, 0, 0.0, 1.2533, -2.0479, 0]
 # default_angles: [0.9219, -1.4399, 0, 0.9219, -1.4399, 0]
 
 lin_vel_scale: 2.0

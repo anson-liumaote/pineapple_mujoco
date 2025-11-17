@@ -199,9 +199,12 @@ if __name__ == "__main__":
     lin_vel_data_list = []
     ang_vel_data_list = []
     gravity_b_list = []
+    joint_pos_list = []
     joint_vel_list = []
     action_list = []
     time_list = []
+    cmd_list = []
+    tau_list = []
     # time_list = [i * simulation_dt for i in range(int(simulation_duration / simulation_dt))]
 
     counter = 0
@@ -271,9 +274,13 @@ if __name__ == "__main__":
                 lin_vel_data_list.append(lin_vel_B.copy())
                 ang_vel_data_list.append(ang_vel_I.copy())
                 gravity_b_list.append(gravity_b)
+                joint_pos_list.append(qpos.copy())
                 joint_vel_list.append(qvel.copy())
-                action_list.append(action * vel_action_scale)
+                # action_list.append(action*pos_action_scale+default_angles)
+                action_list.append(action*vel_action_scale)
                 time_list.append(counter * simulation_dt)
+                cmd_list.append(current_cmd_vel.copy()) 
+                tau_list.append(tau.copy())
                 ###
                 obs_list = [torch.tensor(obs, dtype=torch.float32) if isinstance(obs, np.ndarray) else obs for obs in obs_list]
 
@@ -296,6 +303,7 @@ if __name__ == "__main__":
                 for idx in leg_joint_indices:
                     if idx < len(target_dof_pos) and idx < len(action):
                         target_dof_pos[idx] = default_angles[idx] + action[idx] * pos_action_scale
+                        # target_dof_pos[idx] = default_angles[idx]
                 # Set wheel joint target velocities
                 for idx in wheel_joint_indices:
                     if idx < len(target_dof_vel) and idx < len(action):
@@ -314,13 +322,15 @@ if __name__ == "__main__":
 
     plt.subplot(2, 2, 1)
     for i in range(3): 
-        plt.plot( [step[i] for step in lin_vel_data_list], label=f"Linear Velocity {i}")
+        plt.plot(time_list, [step[i] for step in lin_vel_data_list], label=f"Linear Velocity {i}")
+    plt.plot(time_list, [step[0] for step in cmd_list], label=f"Command Velocity x", linestyle='--')
     plt.title(f"History Linear Velocity", fontsize=10, pad=10)  # Added pad for spacing
     plt.legend()
     plt.grid()
     plt.subplot(2, 2, 2)
     for i in range(3):
         plt.plot(time_list, [step[i] for step in ang_vel_data_list], label=f"Angular Velocity {i}")
+    plt.plot(time_list, [step[2] for step in cmd_list], label=f"Command Velocity yaw", linestyle='--')
     plt.title(f"History Angular Velocity", fontsize=10, pad=10)  # Added pad for spacing
     plt.legend()
     plt.grid()
@@ -331,19 +341,14 @@ if __name__ == "__main__":
     plt.legend()
     plt.grid()
     plt.subplot(2, 2, 4)
-    for i in [2,5]:
-        plt.plot(time_list, [step[i] for step in joint_vel_list], label=f"Joint Velocity {i}")
-    for i in [2,5]:
-        plt.plot(time_list, [step[i] for step in action_list], label=f"velocity Command {i}", linestyle='--')
-    plt.title(f"History Joint Velocity", fontsize=10, pad=10)  # Added pad for spacing
+    for i in [3,7]:
+        plt.plot(time_list, [step[i] for step in action_list], label=f"Joint action {i}", linestyle='--')
+        plt.plot(time_list, [step[i] for step in joint_vel_list], label=f"Joint vel {i}")
+    for i in range(3):
+        plt.plot(time_list, [step[i] for step in ang_vel_data_list], label=f"Angular Velocity {i}")
+    plt.title(f"History Joint Action-Position", fontsize=10, pad=10)  # Added pad for spacing
     plt.legend()
     plt.grid()
-    # plt.subplot(3, 2, 6)
-    # for i in [2,5]:
-    #     plt.plot([step[i] for step in action_list], label=f"velocity Command {i}")
-    # plt.title(f"History Velocity Command", fontsize=10, pad=10)  # Added pad for spacing
-    # plt.legend()
-    # plt.grid()
     plt.tight_layout()
     plt.savefig("history_data.png", dpi=300)
     # # plt.show()
